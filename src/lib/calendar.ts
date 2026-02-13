@@ -94,6 +94,17 @@ export function getISOWeek(date: Date): [number, number] {
   return [d.getUTCFullYear(), weekNo];
 }
 
+export function isoWeekToDate(isoYear: number, isoWeek: number): Date {
+  // Returns the Wednesday (mid-week) of the given ISO week as a representative date
+  const jan4 = new Date(isoYear, 0, 4);
+  const jan4Dow = jan4.getDay() || 7; // 1=Mon..7=Sun
+  const monday = new Date(jan4);
+  monday.setDate(jan4.getDate() - jan4Dow + 1 + (isoWeek - 1) * 7);
+  const wednesday = new Date(monday);
+  wednesday.setDate(monday.getDate() + 2);
+  return wednesday;
+}
+
 export function isSameDay(a: Date, b: Date): boolean {
   return (
     a.getFullYear() === b.getFullYear() &&

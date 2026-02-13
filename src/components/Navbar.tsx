@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { getISOWeek } from "@/lib/calendar";
+import { getISOWeek, isoWeekToDate } from "@/lib/calendar";
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -30,6 +30,11 @@ export default function Navbar() {
   } else if (viewMode === "week" && parts.length >= 3) {
     contextIsoYear = parseInt(parts[1]);
     contextIsoWeek = parseInt(parts[2]);
+    // Derive calendar date from ISO week for Month/Day link context
+    const representative = isoWeekToDate(contextIsoYear, contextIsoWeek);
+    contextYear = representative.getFullYear();
+    contextMonth = representative.getMonth() + 1;
+    contextDay = representative.getDate();
   } else if (viewMode === "day" && parts.length >= 4) {
     contextYear = parseInt(parts[1]);
     contextMonth = parseInt(parts[2]);

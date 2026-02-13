@@ -12,12 +12,11 @@ export default async function WeekPage({ params }: Props) {
   const year = parseInt(yearStr);
   const week = parseInt(weekStr);
 
-  let dates: Date[];
-  try {
-    dates = getWeekDates(year, week);
-  } catch {
+  if (!Number.isInteger(year) || !Number.isInteger(week) || year <= 0 || week < 1 || week > 53) {
     redirect("/");
   }
+
+  const dates = getWeekDates(year, week);
 
   const today = new Date();
   const nowHour = today.getHours();

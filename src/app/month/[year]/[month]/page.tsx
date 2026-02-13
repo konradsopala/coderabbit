@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import Link from "next/link";
 import CalHeader from "@/components/CalHeader";
-import { getMonthGrid, monthName, prevMonth, nextMonth, isDayInfo } from "@/lib/calendar";
+import DayCell from "@/components/DayCell";
+import { getMonthGrid, monthName, prevMonth, nextMonth } from "@/lib/calendar";
 
 const DAY_HEADERS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -14,11 +14,14 @@ export default async function MonthPage({ params }: Props) {
   const year = parseInt(yearStr);
   const month = parseInt(monthStr);
 
+  if (!Number.isInteger(year) || !Number.isInteger(month)) {
+    redirect("/");
+  }
+
   if (month < 1) redirect(`/month/${year - 1}/12`);
   if (month > 12) redirect(`/month/${year + 1}/1`);
 
   const weeks = getMonthGrid(year, month);
-  const today = new Date();
   const [prevY, prevM] = prevMonth(year, month);
   const [nextY, nextM] = nextMonth(year, month);
 
@@ -40,25 +43,9 @@ export default async function MonthPage({ params }: Props) {
         <tbody>
           {weeks.map((week, wi) => (
             <tr key={wi}>
-              {week.map((d) => {
-                const isToday = isDayInfo(d, today);
-                const classes = [
-                  "month-cell",
-                  !d.isCurrentMonth ? "other-month" : "",
-                  isToday ? "today" : "",
-                ].filter(Boolean).join(" ");
-
-                return (
-                  <td key={`${d.month}-${d.day}`} className={classes}>
-                    <Link
-                      href={`/day/${d.year}/${d.month}/${d.day}`}
-                      className={`day-num${isToday ? " today-num" : ""}`}
-                    >
-                      {d.day}
-                    </Link>
-                  </td>
-                );
-              })}
+              {week.map((d) => (
+                <DayCell key={`${d.month}-${d.day}`} day={d} />
+              ))}
             </tr>
           ))}
         </tbody>

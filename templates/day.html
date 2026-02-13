@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="cal-header">
+    <a href="/day/{{ prev_date.year }}/{{ prev_date.month }}/{{ prev_date.day }}" class="nav-arrow">&lsaquo;</a>
+    <h2>{{ formatted_date }}</h2>
+    <a href="/day/{{ next_date.year }}/{{ next_date.month }}/{{ next_date.day }}" class="nav-arrow">&rsaquo;</a>
+</div>
+
+<div class="day-header-badge{% if date == today %} is-today{% endif %}">
+    <span class="day-name-label">{{ date.strftime('%A') }}</span><br>
+    <span class="day-number-label">{{ date.day }}</span>
+</div>
+
+<table class="day-grid">
+    <tbody>
+        {% for h, label in hours %}
+        <tr>
+            <td class="hour-label">{{ label }}</td>
+            <td class="time-slot{% if date == today and h == now_hour %} current-hour{% endif %}"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

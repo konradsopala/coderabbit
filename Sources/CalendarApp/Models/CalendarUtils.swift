@@ -17,11 +17,35 @@ struct HourInfo: Identifiable {
     var id: Int { hour }
 }
 
+/// Wraps a week (array of DateInfo) with a stable identifier for use in ForEach.
+struct WeekRow: Identifiable {
+    let days: [DateInfo]
+
+    /// Stable ID derived from the first day in the week.
+    var id: String { days.first?.id ?? "" }
+}
+
+/// Wraps a Date with a stable, Hashable identifier for use in ForEach.
+struct IdentifiableDate: Identifiable {
+    let date: Date
+    var id: TimeInterval { date.timeIntervalSince1970 }
+}
+
 enum CalendarUtils {
     private static let calendar: Calendar = {
         var cal = Calendar(identifier: .gregorian)
-        cal.firstWeekday = 1 // Sunday
+        cal.firstWeekday = Calendar.current.firstWeekday
+        cal.locale = Locale.current
         return cal
+    }()
+
+    // MARK: - Locale-Aware Formatters
+
+    private static let dateFormatter: DateFormatter = {
+        let df = DateFormatter()
+        df.locale = Locale.current
+        df.calendar = calendar
+        return df
     }()
 
     // MARK: - Hour Formatting
@@ -33,7 +57,7 @@ enum CalendarUtils {
         return "\(h - 12) PM"
     }
 
-    static let hours: [HourInfo] = (6..<24).map { HourInfo(hour: $0, label: formatHour($0)) }
+    static let hours: [HourInfo] = (0..<24).map { HourInfo(hour: $0, label: formatHour($0)) }
 
     // MARK: - Date Comparisons
 
@@ -47,7 +71,7 @@ enum CalendarUtils {
 
     // MARK: - Month Grid
 
-    static func monthGrid(year: Int, month: Int) -> [[DateInfo]] {
+    static func monthGrid(year: Int, month: Int) -> [WeekRow] {
         let cal = calendar
         var components = DateComponents()
         components.year = year
@@ -58,19 +82,17 @@ enum CalendarUtils {
         guard let range = cal.range(of: .day, in: .month, for: firstDay) else { return [] }
         let lastDay = range.count
 
-        // Day of week for the 1st: 1=Sun, 2=Mon, ..., 7=Sat
+        // Day of week for the 1st, adjusted for locale's first weekday
         let firstWeekday = cal.component(.weekday, from: firstDay)
-        // Number of leading days from previous month (Sunday start)
-        let leadingDays = firstWeekday - 1
+        let firstWd = cal.firstWeekday
+        let leadingDays = (firstWeekday - firstWd + 7) % 7
 
-        // Build start date (Sunday before or on the 1st)
         guard let startDate = cal.date(byAdding: .day, value: -leadingDays, to: firstDay) else { return [] }
 
-        // Total cells: enough to cover all days plus trailing to complete the last week
         let totalDays = leadingDays + lastDay
         let totalCells = totalDays + (7 - totalDays % 7) % 7
 
-        var weeks: [[DateInfo]] = []
+        var weeks: [WeekRow] = []
         var currentDate = startDate
 
         for _ in stride(from: 0, to: totalCells, by: 7) {
@@ -86,7 +108,7 @@ enum CalendarUtils {
                 ))
                 currentDate = cal.date(byAdding: .day, value: 1, to: currentDate) ?? currentDate
             }
-            weeks.append(week)
+            weeks.append(WeekRow(days: week))
         }
 
         return weeks
@@ -94,13 +116,16 @@ enum CalendarUtils {
 
     // MARK: - Week Dates
 
-    static func weekDates(for date: Date) -> [Date] {
-        // Get Sunday of the week containing the given date
-        let weekday = calendar.component(.weekday, from: date) // 1=Sun..7=Sat
-        let daysToSubtract = weekday - 1
-        guard let sunday = calendar.date(byAdding: .day, value: -daysToSubtract, to: date) else { return [] }
+    static func weekDates(for date: Date) -> [IdentifiableDate] {
+        let weekday = calendar.component(.weekday, from: date)
+        let firstWd = calendar.firstWeekday
+        let daysToSubtract = (weekday - firstWd + 7) % 7
+        guard let weekStart = calendar.date(byAdding: .day, value: -daysToSubtract, to: date) else { return [] }
 
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: sunday) }
+        return (0..<7).compactMap { offset in
+            guard let d = calendar.date(byAdding: .day, value: offset, to: weekStart) else { return nil }
+            return IdentifiableDate(date: d)
+        }
     }
 
     // MARK: - Date Components
@@ -121,57 +146,72 @@ enum CalendarUtils {
         calendar.component(.hour, from: Date())
     }
 
-    // MARK: - Formatting
+    // MARK: - Locale-Aware Formatting
 
-    private static let monthNames = [
-        "", "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
-    ]
+    /// Localized short weekday names ordered by the calendar's first weekday.
+    static var dayHeaders: [String] {
+        let symbols = dateFormatter.shortWeekdaySymbols ?? ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        let firstWd = calendar.firstWeekday // 1=Sun in Gregorian
+        // Rotate symbols so they start from firstWeekday
+        let offset = firstWd - 1
+        return Array(symbols[offset...]) + Array(symbols[..<offset])
+    }
 
-    private static let dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-    private static let dayAbbrevs = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    private static let monthAbbrevs = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-
-    static let dayHeaders = dayAbbrevs
-
+    /// Localized standalone month name (e.g., "February" or "Februar").
     static func monthName(_ month: Int) -> String {
-        guard month >= 1 && month <= 12 else { return "" }
-        return monthNames[month]
+        guard month >= 1, month <= 12 else { return "" }
+        let symbols = dateFormatter.standaloneMonthSymbols ?? []
+        guard month - 1 < symbols.count else { return "" }
+        return symbols[month - 1]
     }
 
+    /// Localized full weekday name for a date (e.g., "Tuesday" or "Dienstag").
     static func dayName(of date: Date) -> String {
-        let weekday = calendar.component(.weekday, from: date) // 1=Sun..7=Sat
-        return dayNames[weekday - 1]
+        let weekday = calendar.component(.weekday, from: date) // 1-based
+        let symbols = dateFormatter.weekdaySymbols ?? []
+        guard weekday - 1 < symbols.count else { return "" }
+        return symbols[weekday - 1]
     }
 
+    /// Localized abbreviated weekday name (e.g., "Tue" or "Di").
     static func dayAbbrev(of date: Date) -> String {
         let weekday = calendar.component(.weekday, from: date)
-        return dayAbbrevs[weekday - 1]
+        let symbols = dateFormatter.shortWeekdaySymbols ?? []
+        guard weekday - 1 < symbols.count else { return "" }
+        return symbols[weekday - 1]
     }
 
+    /// Localized full date string (e.g., "Tuesday, February 13, 2026").
     static func formatDate(_ date: Date) -> String {
-        let y = year(of: date)
-        let m = month(of: date)
-        let d = day(of: date)
-        let name = dayName(of: date)
-        let mName = monthNames[m]
-        return "\(name), \(mName) \(d), \(y)"
+        let df = DateFormatter()
+        df.locale = Locale.current
+        df.dateStyle = .full
+        return df.string(from: date)
     }
 
-    static func formatWeekLabel(dates: [Date]) -> String {
+    /// Localized full date string for accessibility (e.g., "Tuesday, February 5, 2026").
+    static func accessibilityDateLabel(for date: Date) -> String {
+        formatDate(date)
+    }
+
+    static func formatWeekLabel(dates: [IdentifiableDate]) -> String {
         guard dates.count >= 7 else { return "" }
-        let start = dates[0]
-        let end = dates[6]
+        let start = dates[0].date
+        let end = dates[6].date
         let sm = month(of: start)
         let em = month(of: end)
         let sd = day(of: start)
         let ed = day(of: end)
         let ey = year(of: end)
 
+        let shortMonths = dateFormatter.shortMonthSymbols ?? []
+        let startAbbrev = sm - 1 < shortMonths.count ? shortMonths[sm - 1] : ""
+        let endAbbrev = em - 1 < shortMonths.count ? shortMonths[em - 1] : ""
+
         if sm == em {
-            return "\(monthAbbrevs[sm]) \(sd) – \(ed), \(ey)"
+            return "\(startAbbrev) \(sd) – \(ed), \(ey)"
         }
-        return "\(monthAbbrevs[sm]) \(sd) – \(monthAbbrevs[em]) \(ed), \(ey)"
+        return "\(startAbbrev) \(sd) – \(endAbbrev) \(ed), \(ey)"
     }
 
     // MARK: - Navigation

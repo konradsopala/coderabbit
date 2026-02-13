@@ -3,14 +3,14 @@ import SwiftUI
 struct MonthView: View {
     @Bindable var model: CalendarModel
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
-
     private var year: Int { CalendarUtils.year(of: model.selectedDate) }
     private var month: Int { CalendarUtils.month(of: model.selectedDate) }
 
-    private var weeks: [[DateInfo]] {
+    private var weeks: [WeekRow] {
         CalendarUtils.monthGrid(year: year, month: month)
     }
+
+    private let columns = Array(repeating: GridItem(.flexible(), spacing: 0), count: 7)
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,7 +21,7 @@ struct MonthView: View {
             )
 
             // Day-of-week headers
-            HStack(spacing: 0) {
+            LazyVGrid(columns: columns, spacing: 0) {
                 ForEach(CalendarUtils.dayHeaders, id: \.self) { header in
                     Text(header)
                         .font(.caption)
@@ -33,11 +33,11 @@ struct MonthView: View {
                 }
             }
 
-            // Month grid
+            // Month grid using LazyVGrid with stable WeekRow IDs
             VStack(spacing: 0) {
-                ForEach(Array(weeks.enumerated()), id: \.offset) { _, week in
-                    HStack(spacing: 0) {
-                        ForEach(week) { dayInfo in
+                ForEach(weeks) { weekRow in
+                    LazyVGrid(columns: columns, spacing: 0) {
+                        ForEach(weekRow.days) { dayInfo in
                             DayCellView(dayInfo: dayInfo) {
                                 model.navigateToDay(dayInfo.date)
                             }

@@ -6,16 +6,12 @@ struct WeekView: View {
     private static let primaryColor = Color(red: 0.1, green: 0.45, blue: 0.91)
     private static let primaryLight = Color(red: 0.91, green: 0.94, blue: 0.99)
 
-    private var dates: [Date] {
+    private var dates: [IdentifiableDate] {
         CalendarUtils.weekDates(for: model.selectedDate)
     }
 
     private var weekLabel: String {
         CalendarUtils.formatWeekLabel(dates: dates)
-    }
-
-    private var currentHour: Int {
-        CalendarUtils.currentHour()
     }
 
     var body: some View {
@@ -26,28 +22,32 @@ struct WeekView: View {
                 onNext: { model.goToNextPeriod() }
             )
 
-            ScrollView {
-                VStack(spacing: 0) {
-                    // Day column headers
-                    weekColumnHeaders
+            // TimelineView updates every minute for current-hour tracking
+            TimelineView(.everyMinute) { context in
+                let nowHour = Calendar.current.component(.hour, from: context.date)
 
-                    Divider()
+                ScrollView {
+                    VStack(spacing: 0) {
+                        // Day column headers
+                        weekColumnHeaders
 
-                    // Hour rows
-                    ForEach(CalendarUtils.hours) { hourInfo in
-                        WeekHourRow(
-                            hourInfo: hourInfo,
-                            dates: dates,
-                            currentHour: currentHour,
-                            primaryLight: Self.primaryLight,
-                            onTapDate: { model.navigateToDay($0) }
-                        )
+                        Divider()
+
+                        // Hour rows
+                        ForEach(CalendarUtils.hours) { hourInfo in
+                            WeekHourRow(
+                                hourInfo: hourInfo,
+                                dates: dates,
+                                currentHour: nowHour,
+                                primaryLight: Self.primaryLight
+                            )
+                        }
                     }
+                    .background(Color.white)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
+                    .padding(.horizontal)
                 }
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
-                .padding(.horizontal)
             }
         }
     }
@@ -57,11 +57,11 @@ struct WeekView: View {
             Text("")
                 .frame(width: 56)
 
-            ForEach(dates, id: \.timeIntervalSince1970) { date in
+            ForEach(dates) { identDate in
                 WeekDayHeader(
-                    date: date,
+                    date: identDate.date,
                     primaryColor: Self.primaryColor,
-                    onTap: { model.navigateToDay(date) }
+                    onTap: { model.navigateToDay(identDate.date) }
                 )
             }
         }
@@ -105,10 +105,9 @@ private struct WeekDayHeader: View {
 
 private struct WeekHourRow: View {
     let hourInfo: HourInfo
-    let dates: [Date]
+    let dates: [IdentifiableDate]
     let currentHour: Int
     let primaryLight: Color
-    let onTapDate: (Date) -> Void
 
     var body: some View {
         HStack(spacing: 0) {
@@ -118,9 +117,9 @@ private struct WeekHourRow: View {
                 .frame(width: 56, alignment: .trailing)
                 .padding(.trailing, 8)
 
-            ForEach(dates, id: \.timeIntervalSince1970) { date in
+            ForEach(dates) { identDate in
                 WeekTimeSlot(
-                    date: date,
+                    date: identDate.date,
                     hour: hourInfo.hour,
                     currentHour: currentHour,
                     primaryLight: primaryLight

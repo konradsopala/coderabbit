@@ -11,10 +11,6 @@ struct DayView: View {
         CalendarUtils.isToday(date)
     }
 
-    private var currentHour: Int {
-        CalendarUtils.currentHour()
-    }
-
     var body: some View {
         VStack(spacing: 0) {
             CalendarHeader(
@@ -44,21 +40,24 @@ struct DayView: View {
             }
             .padding(.bottom, 8)
 
-            // Hour rows
-            ScrollView {
-                VStack(spacing: 0) {
-                    ForEach(CalendarUtils.hours) { hourInfo in
-                        DayHourRow(
-                            hourInfo: hourInfo,
-                            isToday: isToday,
-                            currentHour: currentHour
-                        )
+            // Hour rows — TimelineView updates every minute for current-hour tracking
+            TimelineView(.everyMinute) { context in
+                let nowHour = Calendar.current.component(.hour, from: context.date)
+                ScrollView {
+                    VStack(spacing: 0) {
+                        ForEach(CalendarUtils.hours) { hourInfo in
+                            DayHourRow(
+                                hourInfo: hourInfo,
+                                isToday: isToday,
+                                currentHour: nowHour
+                            )
+                        }
                     }
+                    .background(Color(white: 1.0, opacity: 1.0))
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                    .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
+                    .padding(.horizontal)
                 }
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                .shadow(color: .black.opacity(0.06), radius: 2, y: 1)
-                .padding(.horizontal)
             }
         }
     }
@@ -73,6 +72,16 @@ private struct DayHourRow: View {
 
     private var isCurrentHour: Bool { isToday && hourInfo.hour == currentHour }
 
+    #if os(iOS)
+    private var bgColor: Color {
+        isCurrentHour ? Color(uiColor: .systemYellow).opacity(0.2) : Color(uiColor: .systemBackground)
+    }
+    #else
+    private var bgColor: Color {
+        isCurrentHour ? Color.yellow.opacity(0.2) : Color(nsColor: .windowBackgroundColor)
+    }
+    #endif
+
     var body: some View {
         HStack(spacing: 0) {
             Text(hourInfo.label)
@@ -82,7 +91,7 @@ private struct DayHourRow: View {
                 .padding(.trailing, 12)
 
             Rectangle()
-                .fill(isCurrentHour ? Color(red: 1.0, green: 0.97, blue: 0.88) : Color.white)
+                .fill(bgColor)
                 .frame(height: 48)
                 .overlay(alignment: .top) {
                     if isCurrentHour {

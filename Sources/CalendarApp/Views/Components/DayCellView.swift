@@ -25,6 +25,8 @@ struct DayCellView: View {
                 .padding(.top, 6)
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(CalendarUtils.accessibilityDateLabel(for: dayInfo.date))
+        .accessibilityHint(isToday ? "Today. Tap to view this day." : "Tap to view this day.")
     }
 
     private var foregroundColor: Color {

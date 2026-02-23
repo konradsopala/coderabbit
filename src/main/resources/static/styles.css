@@ -347,6 +347,64 @@ a {
     color: #fff;
 }
 
+/* Weather badges */
+.weather-badge {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 2px;
+}
+
+.weather-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.weather-temp {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+/* Week view weather */
+.weather-badge-week {
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.weather-badge-week .weather-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.weather-badge-week .weather-temp {
+    font-size: 10px;
+}
+
+/* Day view weather */
+.weather-badge-day {
+    justify-content: center;
+    margin-top: 8px;
+    gap: 6px;
+}
+
+.weather-icon-day {
+    width: 36px;
+    height: 36px;
+}
+
+.weather-temp-day {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.weather-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    text-transform: capitalize;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .navbar {
@@ -399,5 +457,24 @@ a {
     .week-grid .time-slot,
     .day-grid .time-slot {
         height: 40px;
+    }
+
+    .weather-badge {
+        display: none;
+    }
+
+    .weather-badge-week,
+    .weather-badge-day {
+        display: flex;
+    }
+
+    .weather-badge-week .weather-icon {
+        width: 16px;
+        height: 16px;
+    }
+
+    .weather-icon-day {
+        width: 28px;
+        height: 28px;
     }
 }

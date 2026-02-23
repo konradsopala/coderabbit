@@ -15,6 +15,11 @@
         <span class="day-name-label" th:text="${dayNameStr}"></span>
         <br>
         <span class="day-number-label" th:text="${date.getDayOfMonth()}"></span>
+        <div th:if="${weather != null}" class="weather-badge weather-badge-day">
+            <img th:src="${weather.iconUrl()}" th:alt="${weather.description()}" class="weather-icon weather-icon-day" />
+            <span class="weather-temp weather-temp-day" th:text="${weather.tempFormatted()}"></span>
+            <span class="weather-desc" th:text="${weather.description()}"></span>
+        </div>
     </div>
     <table class="day-grid">
         <tbody>

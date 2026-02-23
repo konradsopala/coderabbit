@@ -8,7 +8,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Controller
-class CalendarController {
+class CalendarController(private val weatherService: WeatherService) {
 
     @GetMapping("/")
     fun index(): String {
@@ -40,6 +40,7 @@ class CalendarController {
         model.addAttribute("today", today)
         model.addAttribute("dayHeaders", arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"))
         model.addAttribute("nav", NavContext.of("month", year, month, 15, ctxIso[0], ctxIso[1]))
+        model.addAttribute("weatherMap", weatherService.getForecasts())
 
         return "month"
     }
@@ -77,6 +78,7 @@ class CalendarController {
             "week", representative.year, representative.monthValue,
             representative.dayOfMonth, year, week
         ))
+        model.addAttribute("weatherMap", weatherService.getForecasts())
 
         return "week"
     }
@@ -116,6 +118,7 @@ class CalendarController {
         model.addAttribute("prevDate", prevDate)
         model.addAttribute("nextDate", nextDate)
         model.addAttribute("nav", NavContext.of("day", year, month, day, ctxIso[0], ctxIso[1]))
+        model.addAttribute("weather", weatherService.getWeatherForDate(d))
 
         return "day"
     }

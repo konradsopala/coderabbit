@@ -24,6 +24,13 @@
                        th:text="${d.day()}"
                        th:classappend="${d.year() == today.getYear() and d.month() == today.getMonthValue() and d.day() == today.getDayOfMonth()} ? 'today-num'"
                        class="day-num"></a>
+                    <th:block th:with="dateKey=${T(java.time.LocalDate).of(d.year(), d.month(), d.day())},
+                                       w=${weatherMap.get(dateKey)}">
+                        <div th:if="${w != null}" class="weather-badge">
+                            <img th:src="${w.iconUrl()}" th:alt="${w.description()}" class="weather-icon" />
+                            <span class="weather-temp" th:text="${w.tempFormatted()}"></span>
+                        </div>
+                    </th:block>
                 </td>
             </tr>
         </tbody>

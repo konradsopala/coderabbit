@@ -20,6 +20,12 @@
                     <a th:href="@{/day/{y}/{m}/{dy}(y=${d.getYear()},m=${d.getMonthValue()},dy=${d.getDayOfMonth()})}"
                        class="week-day-num"
                        th:text="${d.getDayOfMonth()}"></a>
+                    <th:block th:with="w=${weatherMap.get(d)}">
+                        <div th:if="${w != null}" class="weather-badge weather-badge-week">
+                            <img th:src="${w.iconUrl()}" th:alt="${w.description()}" class="weather-icon" />
+                            <span class="weather-temp" th:text="${w.tempFormatted()}"></span>
+                        </div>
+                    </th:block>
                 </th>
             </tr>
         </thead>

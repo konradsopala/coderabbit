@@ -1,5 +1,7 @@
 """Calendar utility functions for date calculations and formatting."""
 
+from __future__ import annotations
+
 from datetime import date, timedelta
 from calendar import monthrange
 

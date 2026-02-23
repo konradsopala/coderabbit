@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="cal-header">
+    <a href="{{ url_for('week_view', year=prev_year, week=prev_week) }}" class="nav-arrow" aria-label="Previous week">&lsaquo;</a>
+    <h2>{{ title }}</h2>
+    <a href="{{ url_for('week_view', year=next_year, week=next_week) }}" class="nav-arrow" aria-label="Next week">&rsaquo;</a>
+</div>
+<table class="week-grid">
+    <thead>
+        <tr>
+            <th></th>
+            {% for d in dates %}
+                {% set is_today_col = is_same_day(d, today) %}
+                <th class="{{ 'today-col' if is_today_col else '' }}">
+                    <span class="week-day-name">{{ day_abbrev(d) }}</span>
+                    <a href="{{ url_for('day_view', year=d.year, month=d.month, day=d.day) }}"
+                       class="week-day-num">{{ d.day }}</a>
+                </th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for h in hours %}
+        <tr class="hour-row">
+            <td class="hour-label">{{ h.label }}</td>
+            {% for d in dates %}
+                {% set is_today_col = is_same_day(d, today) %}
+                {% set is_current = is_today_col and h.hour == now_hour %}
+                <td class="time-slot {{ 'today-col' if is_today_col else '' }} {{ 'current-hour' if is_current else '' }}"></td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

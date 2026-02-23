@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block content %}
+<div class="cal-header">
+    <a href="{{ url_for('day_view', year=prev_date.year, month=prev_date.month, day=prev_date.day) }}" class="nav-arrow" aria-label="Previous day">&lsaquo;</a>
+    <h2>{{ title }}</h2>
+    <a href="{{ url_for('day_view', year=next_date.year, month=next_date.month, day=next_date.day) }}" class="nav-arrow" aria-label="Next day">&rsaquo;</a>
+</div>
+<div class="day-header-badge {{ 'is-today' if is_today else '' }}">
+    <span class="day-name-label">{{ day_name_str }}</span>
+    <br>
+    <span class="day-number-label">{{ date.day }}</span>
+</div>
+<table class="day-grid">
+    <tbody>
+        {% for h in hours %}
+        <tr>
+            <td class="hour-label">{{ h.label }}</td>
+            <td class="time-slot {{ 'current-hour' if is_today and h.hour == now_hour else '' }}"></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

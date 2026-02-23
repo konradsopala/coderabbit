@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="nav-title">Calendar</a>
+        <div class="view-switcher">
+            <a href="{{ url_for('month_view', year=nav_ctx_year, month=nav_ctx_month) }}"
+               class="view-btn {{ 'active' if view_mode == 'month' else '' }}">Month</a>
+            <a href="{{ url_for('week_view', year=nav_ctx_iso_year, week=nav_ctx_iso_week) }}"
+               class="view-btn {{ 'active' if view_mode == 'week' else '' }}">Week</a>
+            <a href="{{ url_for('day_view', year=nav_ctx_year, month=nav_ctx_month, day=nav_ctx_day) }}"
+               class="view-btn {{ 'active' if view_mode == 'day' else '' }}">Day</a>
+        </div>
+        {% if view_mode == "month" %}
+            <a href="{{ url_for('month_view', year=nav_today.year, month=nav_today.month) }}" class="today-btn">Today</a>
+        {% elif view_mode == "week" %}
+            <a href="{{ url_for('week_view', year=nav_iso_year, week=nav_iso_week) }}" class="today-btn">Today</a>
+        {% else %}
+            <a href="{{ url_for('day_view', year=nav_today.year, month=nav_today.month, day=nav_today.day) }}" class="today-btn">Today</a>
+        {% endif %}
+    </nav>
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

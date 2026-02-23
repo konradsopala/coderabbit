@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar</title>
+    <link rel="stylesheet" th:href="@{/styles.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <a th:href="@{/}" class="nav-title">Calendar</a>
+        <div class="view-switcher">
+            <a th:href="@{/month/{y}/{m}(y=${nav.ctxYear()},m=${nav.ctxMonth()})}"
+               th:classappend="${nav.viewMode() == 'month'} ? 'active'"
+               class="view-btn">Month</a>
+            <a th:href="@{/week/{y}/{w}(y=${nav.ctxIsoYear()},w=${nav.ctxIsoWeek()})}"
+               th:classappend="${nav.viewMode() == 'week'} ? 'active'"
+               class="view-btn">Week</a>
+            <a th:href="@{/day/{y}/{m}/{d}(y=${nav.ctxYear()},m=${nav.ctxMonth()},d=${nav.ctxDay()})}"
+               th:classappend="${nav.viewMode() == 'day'} ? 'active'"
+               class="view-btn">Day</a>
+        </div>
+        <th:block th:switch="${nav.viewMode()}">
+            <a th:case="'month'"
+               th:href="@{/month/{y}/{m}(y=${nav.today().getYear()},m=${nav.today().getMonthValue()})}"
+               class="today-btn">Today</a>
+            <a th:case="'week'"
+               th:href="@{/week/{y}/{w}(y=${nav.todayIsoYear()},w=${nav.todayIsoWeek()})}"
+               class="today-btn">Today</a>
+            <a th:case="*"
+               th:href="@{/day/{y}/{m}/{d}(y=${nav.today().getYear()},m=${nav.today().getMonthValue()},d=${nav.today().getDayOfMonth()})}"
+               class="today-btn">Today</a>
+        </th:block>
+    </nav>
+    <main class="container">
+        <div layout:fragment="content"></div>
+    </main>
+</body>
+</html>

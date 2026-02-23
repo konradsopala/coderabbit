@@ -1,5 +1,8 @@
-.build/
-.swiftpm/
-.next/
-node_modules/
-next-env.d.ts
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+dist/
+build/
+.env

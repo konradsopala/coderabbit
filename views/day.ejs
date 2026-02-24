@@ -1,0 +1,22 @@
+<div class="cal-header">
+    <a href="/day/<%= prevDate.getFullYear() %>/<%= prevDate.getMonth() + 1 %>/<%= prevDate.getDate() %>"
+       class="nav-arrow" aria-label="Previous day">&lsaquo;</a>
+    <h2><%= title %></h2>
+    <a href="/day/<%= nextDate.getFullYear() %>/<%= nextDate.getMonth() + 1 %>/<%= nextDate.getDate() %>"
+       class="nav-arrow" aria-label="Next day">&rsaquo;</a>
+</div>
+<div class="day-header-badge<%= isToday ? ' is-today' : '' %>">
+    <span class="day-name-label"><%= dayNameStr %></span>
+    <br>
+    <span class="day-number-label"><%= date.getDate() %></span>
+</div>
+<table class="day-grid">
+    <tbody>
+        <% hours.forEach(function(h) { %>
+            <tr>
+                <td class="hour-label"><%= h.label %></td>
+                <td class="time-slot<%= (isToday && h.hour === nowHour) ? ' current-hour' : '' %>"></td>
+            </tr>
+        <% }); %>
+    </tbody>
+</table>

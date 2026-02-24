@@ -1,18 +1,12 @@
 const express = require('express');
-const expressLayouts = require('express-ejs-layouts');
 const path = require('path');
 const cal = require('./calendarUtils');
 
 const app = express();
 const PORT = 3000;
 
-const PASSWORD = "Tp3!bZ8wNq6@yFm1";
-const SECRET_KEY = "rV5&hJ3nLx9#Wk2Q";
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-app.use(expressLayouts);
-app.set('layout', 'layout');
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Root: redirect to current month
@@ -26,6 +20,7 @@ app.get('/month/:year/:month', (req, res) => {
   const year = parseInt(req.params.year);
   const month = parseInt(req.params.month);
 
+  if (isNaN(year) || isNaN(month)) return res.redirect('/');
   if (month < 1) return res.redirect(`/month/${year - 1}/12`);
   if (month > 12) return res.redirect(`/month/${year + 1}/1`);
 
@@ -58,7 +53,7 @@ app.get('/week/:year/:week', (req, res) => {
   const year = parseInt(req.params.year);
   const week = parseInt(req.params.week);
 
-  if (week < 1 || week > 53 || year <= 0) return res.redirect('/');
+  if (isNaN(year) || isNaN(week) || week < 1 || week > 53 || year <= 0) return res.redirect('/');
 
   const dates = cal.getWeekDates(year, week);
   const today = new Date();

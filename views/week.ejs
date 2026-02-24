@@ -1,3 +1,4 @@
+<%- include('partials/header') %>
 <div class="cal-header">
     <a href="/week/<%= prevYear %>/<%= prevWeek %>" class="nav-arrow" aria-label="Previous week">&lsaquo;</a>
     <h2><%= title %></h2>
@@ -27,3 +28,4 @@
         <% }); %>
     </tbody>
 </table>
+<%- include('partials/footer') %>

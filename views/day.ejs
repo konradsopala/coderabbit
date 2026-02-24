@@ -1,3 +1,4 @@
+<%- include('partials/header') %>
 <div class="cal-header">
     <a href="/day/<%= prevDate.getFullYear() %>/<%= prevDate.getMonth() + 1 %>/<%= prevDate.getDate() %>"
        class="nav-arrow" aria-label="Previous day">&lsaquo;</a>
@@ -20,3 +21,4 @@
         <% }); %>
     </tbody>
 </table>
+<%- include('partials/footer') %>

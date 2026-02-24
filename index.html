@@ -136,7 +136,8 @@ a {
 /* Month grid */
 .month-grid {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: var(--bg);
     border-radius: 12px;
     overflow: hidden;
@@ -201,7 +202,8 @@ a {
 /* Week grid */
 .week-grid {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: var(--bg);
     border-radius: 12px;
     overflow: hidden;
@@ -287,7 +289,8 @@ a {
 /* Day grid */
 .day-grid {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
     background: var(--bg);
     border-radius: 12px;
     overflow: hidden;
@@ -429,7 +432,6 @@ const MONTH_ABBREVS = [
 
 const DAY_NAMES = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const DAY_ABBREVS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const DAY_HEADERS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 function formatHour(h) {
     if (h === 0) return '12 AM';
@@ -438,6 +440,7 @@ function formatHour(h) {
     return (h - 12) + ' PM';
 }
 
+// Hours 6 AM–11 PM: early morning slots (12 AM–5 AM) are omitted for a cleaner default view
 function getHours() {
     const hours = [];
     for (let h = 6; h < 24; h++) {
@@ -556,6 +559,10 @@ function sameDay(a, b) {
 
 // --- Rendering ---
 
+function viewBtn(label, href, isActive) {
+    return '<a href="' + href + '" class="view-btn' + (isActive ? ' active' : '') + '">' + label + '</a>';
+}
+
 function renderNavbar(viewMode, ctxYear, ctxMonth, ctxDay, ctxIsoYear, ctxIsoWeek) {
     const today = new Date();
     const todayIso = getIsoWeek(today);
@@ -572,16 +579,18 @@ function renderNavbar(viewMode, ctxYear, ctxMonth, ctxDay, ctxIsoYear, ctxIsoWee
     document.getElementById('navbar').innerHTML =
         '<a href="#/month/' + ctxYear + '/' + ctxMonth + '" class="nav-title">Calendar</a>' +
         '<div class="view-switcher">' +
-            '<a href="#/month/' + ctxYear + '/' + ctxMonth + '" class="view-btn' + (viewMode === 'month' ? ' active' : '') + '">Month</a>' +
-            '<a href="#/week/' + ctxIsoYear + '/' + ctxIsoWeek + '" class="view-btn' + (viewMode === 'week' ? ' active' : '') + '">Week</a>' +
-            '<a href="#/day/' + ctxYear + '/' + ctxMonth + '/' + ctxDay + '" class="view-btn' + (viewMode === 'day' ? ' active' : '') + '">Day</a>' +
+            viewBtn('Month', '#/month/' + ctxYear + '/' + ctxMonth, viewMode === 'month') +
+            viewBtn('Week', '#/week/' + ctxIsoYear + '/' + ctxIsoWeek, viewMode === 'week') +
+            viewBtn('Day', '#/day/' + ctxYear + '/' + ctxMonth + '/' + ctxDay, viewMode === 'day') +
         '</div>' +
         '<a href="' + todayHref + '" class="today-btn">Today</a>';
 }
 
 function renderMonth(year, month) {
-    if (month < 1) { year--; month = 12; }
-    if (month > 12) { year++; month = 1; }
+    // Normalize arbitrary month values (e.g. month=0, month=13, month=25)
+    var adj = Math.floor((month - 1) / 12);
+    year += adj;
+    month = ((((month - 1) % 12) + 12) % 12) + 1;
 
     const weeks = getMonthGrid(year, month);
     const prev = prevMonth(year, month);
@@ -600,7 +609,7 @@ function renderMonth(year, month) {
         '</div>' +
         '<table class="month-grid"><thead><tr>';
 
-    DAY_HEADERS.forEach(function(d) {
+    DAY_ABBREVS.forEach(function(d) {
         html += '<th>' + d + '</th>';
     });
     html += '</tr></thead><tbody>';
@@ -631,6 +640,8 @@ function renderWeek(isoYear, isoWeek) {
     const hours = getHours();
     const weekLabel = formatWeekLabel(dates);
 
+    // dates[0] is the Sunday before the ISO week's Monday.
+    // Subtract 6 days to land on the previous week's Monday; add 8 to reach next week's Monday.
     const prevDay = new Date(dates[0]);
     prevDay.setDate(prevDay.getDate() - 6);
     const prevIso = getIsoWeek(prevDay);
@@ -730,25 +741,25 @@ function route() {
     const parts = hash.replace('#/', '').split('/');
 
     if (parts[0] === 'month' && parts.length === 3) {
-        const year = parseInt(parts[1]);
-        const month = parseInt(parts[2]);
+        const year = parseInt(parts[1], 10);
+        const month = parseInt(parts[2], 10);
         if (!isNaN(year) && !isNaN(month)) {
             return renderMonth(year, month);
         }
     }
 
     if (parts[0] === 'week' && parts.length === 3) {
-        const year = parseInt(parts[1]);
-        const week = parseInt(parts[2]);
+        const year = parseInt(parts[1], 10);
+        const week = parseInt(parts[2], 10);
         if (!isNaN(year) && !isNaN(week)) {
             return renderWeek(year, week);
         }
     }
 
     if (parts[0] === 'day' && parts.length === 4) {
-        const year = parseInt(parts[1]);
-        const month = parseInt(parts[2]);
-        const day = parseInt(parts[3]);
+        const year = parseInt(parts[1], 10);
+        const month = parseInt(parts[2], 10);
+        const day = parseInt(parts[3], 10);
         if (!isNaN(year) && !isNaN(month) && !isNaN(day)) {
             return renderDay(year, month, day);
         }

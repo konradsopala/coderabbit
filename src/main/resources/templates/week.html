@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<body>
+<main layout:fragment="content">
+    <div class="cal-header">
+        <a th:href="${prevUrl}" class="nav-arrow" aria-label="Previous week">&larr;</a>
+        <h2 th:text="${title}"></h2>
+        <a th:href="${nextUrl}" class="nav-arrow" aria-label="Next week">&rarr;</a>
+    </div>
+
+    <div class="week-grid">
+        <div class="week-header">
+            <div class="hour-label"></div>
+            <div th:each="date : ${dates}"
+                 th:classappend="${date.equals(today)} ? 'today-col'"
+                 class="week-day-header">
+                <span class="day-name" th:text="${#temporals.format(date, 'EEE')}"></span>
+                <span th:classappend="${date.equals(today)} ? 'today-num'"
+                      class="day-num"
+                      th:text="${date.dayOfMonth}"></span>
+            </div>
+        </div>
+
+        <div class="week-body">
+            <div th:each="hour : ${hours}" class="week-row">
+                <div class="hour-label" th:text="${hour.label()}"></div>
+                <div th:each="date : ${dates}"
+                     th:classappend="${date.equals(today)} ? 'today-col'"
+                     class="time-slot">
+                    <div th:if="${date.equals(today) and hour.hour() == currentHour}"
+                         class="current-hour"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+</html>

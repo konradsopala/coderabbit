@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<body>
+<main layout:fragment="content">
+    <div class="cal-header">
+        <a th:href="${prevUrl}" class="nav-arrow" aria-label="Previous month">&larr;</a>
+        <h2 th:text="${title}"></h2>
+        <a th:href="${nextUrl}" class="nav-arrow" aria-label="Next month">&rarr;</a>
+    </div>
+
+    <div class="month-grid">
+        <div class="month-header">Sun</div>
+        <div class="month-header">Mon</div>
+        <div class="month-header">Tue</div>
+        <div class="month-header">Wed</div>
+        <div class="month-header">Thu</div>
+        <div class="month-header">Fri</div>
+        <div class="month-header">Sat</div>
+
+        <th:block th:each="week : ${weeks}">
+            <div th:each="day : ${week}"
+                 th:classappend="${!day.isCurrentMonth()} ? 'other-month'"
+                 class="month-cell">
+                <a th:href="@{/day/{y}/{m}/{d}(y=${day.year()}, m=${day.month()}, d=${day.day()})}"
+                   th:classappend="${day.date().equals(today)} ? 'today-num'"
+                   class="day-num"
+                   th:text="${day.day()}"></a>
+            </div>
+        </th:block>
+    </div>
+</main>
+</body>
+</html>

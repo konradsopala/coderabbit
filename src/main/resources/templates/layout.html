@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar App</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">Calendar</div>
+        <div class="navbar-nav">
+            <a th:href="@{/month/{y}/{m}(y=${year}, m=${month})}"
+               th:classappend="${viewMode == 'month'} ? 'active'" class="view-btn">Month</a>
+            <a th:href="@{/week/{y}/{w}(y=${year}, w=${weekNum})}"
+               th:classappend="${viewMode == 'week'} ? 'active'" class="view-btn">Week</a>
+            <a th:href="@{/day/{y}/{m}/{d}(y=${#dates.createNow().year}, m=${#dates.createNow().monthValue}, d=${#dates.createNow().dayOfMonth})}"
+               th:classappend="${viewMode == 'day'} ? 'active'" class="view-btn">Day</a>
+        </div>
+        <a th:href="@{/}" class="today-btn">Today</a>
+    </nav>
+
+    <main layout:fragment="content"></main>
+</body>
+</html>

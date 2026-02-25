@@ -17,12 +17,12 @@
 
     <div class="day-grid">
         <div th:each="hour : ${hours}"
-             th:classappend="${isToday and hour.hour() == currentHour} ? 'current-hour'"
+             th:classappend="${isToday and hour.hour == currentHour} ? 'current-hour'"
              class="day-row">
-            <div class="hour-label" th:text="${hour.label()}"></div>
+            <div class="hour-label" th:text="${hour.label}"></div>
             <div class="time-slot">
                 <th:block th:each="event : ${events}">
-                    <div th:if="${event.startTime != null and event.startTime.hour == hour.hour()}"
+                    <div th:if="${event.startTime != null and event.startTime.hour == hour.hour}"
                          class="event-block"
                          th:style="'background:' + ${event.color}"
                          th:title="${event.description}">

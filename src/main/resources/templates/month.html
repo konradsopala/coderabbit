@@ -21,15 +21,15 @@
 
         <th:block th:each="week : ${weeks}">
             <div th:each="day : ${week}"
-                 th:classappend="${!day.isCurrentMonth()} ? 'other-month'"
+                 th:classappend="${!day.currentMonth} ? 'other-month'"
                  class="month-cell">
-                <a th:href="@{/day/{y}/{m}/{d}(y=${day.year()}, m=${day.month()}, d=${day.day()})}"
-                   th:classappend="${day.date().equals(today)} ? 'today-num'"
+                <a th:href="@{/day/{y}/{m}/{d}(y=${day.year}, m=${day.month}, d=${day.day})}"
+                   th:classappend="${day.date.equals(today)} ? 'today-num'"
                    class="day-num"
-                   th:text="${day.day()}"></a>
+                   th:text="${day.day}"></a>
                 <div class="month-cell-events"
-                     th:if="${eventsByDate != null and eventsByDate.containsKey(day.date())}">
-                    <div th:each="event : ${eventsByDate.get(day.date())}"
+                     th:if="${eventsByDate != null and eventsByDate.containsKey(day.date)}">
+                    <div th:each="event : ${eventsByDate.get(day.date)}"
                          class="event-chip"
                          th:style="'background:' + ${event.color}"
                          th:title="${event.title + ' ' + event.timeRange}">

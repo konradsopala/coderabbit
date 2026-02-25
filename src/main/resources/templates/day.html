@@ -20,7 +20,17 @@
              th:classappend="${isToday and hour.hour() == currentHour} ? 'current-hour'"
              class="day-row">
             <div class="hour-label" th:text="${hour.label()}"></div>
-            <div class="time-slot"></div>
+            <div class="time-slot">
+                <th:block th:each="event : ${events}">
+                    <div th:if="${event.startTime != null and event.startTime.hour == hour.hour()}"
+                         class="event-block"
+                         th:style="'background:' + ${event.color}"
+                         th:title="${event.description}">
+                        <span class="event-block-title" th:text="${event.title}"></span>
+                        <span class="event-block-time" th:text="${event.timeRange}"></span>
+                    </div>
+                </th:block>
+            </div>
         </div>
     </div>
 </main>

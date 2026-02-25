@@ -27,6 +27,15 @@
                    th:classappend="${day.date().equals(today)} ? 'today-num'"
                    class="day-num"
                    th:text="${day.day()}"></a>
+                <div class="month-cell-events"
+                     th:if="${eventsByDate != null and eventsByDate.containsKey(day.date())}">
+                    <div th:each="event : ${eventsByDate.get(day.date())}"
+                         class="event-chip"
+                         th:style="'background:' + ${event.color}"
+                         th:title="${event.title + ' ' + event.timeRange}">
+                        <span class="event-chip-text" th:text="${event.title}"></span>
+                    </div>
+                </div>
             </div>
         </th:block>
     </div>

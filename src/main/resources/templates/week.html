@@ -31,6 +31,16 @@
                      class="time-slot">
                     <div th:if="${date.equals(today) and hour.hour() == currentHour}"
                          class="current-hour"></div>
+                    <th:block th:if="${eventsByDate != null and eventsByDate.containsKey(date)}">
+                        <div th:each="event : ${eventsByDate.get(date)}"
+                             th:if="${event.startTime != null and event.startTime.hour == hour.hour()}"
+                             class="event-block"
+                             th:style="'background:' + ${event.color}"
+                             th:title="${event.title + ' ' + event.timeRange}">
+                            <span class="event-block-title" th:text="${event.title}"></span>
+                            <span class="event-block-time" th:text="${event.timeRange}"></span>
+                        </div>
+                    </th:block>
                 </div>
             </div>
         </div>

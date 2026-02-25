@@ -7,10 +7,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class CalendarController {
+
+    private final EventService eventService;
+
+    public CalendarController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @GetMapping("/")
     public String index() {
@@ -29,6 +37,11 @@ public class CalendarController {
         int[] prev = CalendarUtils.prevMonth(year, month);
         int[] next = CalendarUtils.nextMonth(year, month);
 
+        // Gather all dates in the grid to query events
+        LocalDate gridStart = weeks.get(0).get(0).date();
+        LocalDate gridEnd = weeks.get(weeks.size() - 1).get(6).date();
+        Map<LocalDate, List<Event>> eventsByDate = eventService.findByDateRange(gridStart, gridEnd);
+
         model.addAttribute("title", CalendarUtils.monthYearLabel(year, month));
         model.addAttribute("weeks", weeks);
         model.addAttribute("prevUrl", "/month/" + prev[0] + "/" + prev[1]);
@@ -39,6 +52,7 @@ public class CalendarController {
         model.addAttribute("month", month);
         model.addAttribute("viewMode", "month");
         model.addAttribute("weekNum", CalendarUtils.isoWeekNumber(LocalDate.now()));
+        model.addAttribute("eventsByDate", eventsByDate);
 
         return "month";
     }
@@ -68,6 +82,8 @@ public class CalendarController {
             nextWeek = 1;
         }
 
+        Map<LocalDate, List<Event>> eventsByDate = eventService.findByDateRange(dates.get(0), dates.get(6));
+
         model.addAttribute("title", CalendarUtils.weekLabel(dates));
         model.addAttribute("dates", dates);
         model.addAttribute("hours", hours);
@@ -79,6 +95,7 @@ public class CalendarController {
         model.addAttribute("year", year);
         model.addAttribute("month", LocalDate.now().getMonthValue());
         model.addAttribute("weekNum", week);
+        model.addAttribute("eventsByDate", eventsByDate);
 
         return "week";
     }
@@ -98,6 +115,8 @@ public class CalendarController {
         LocalDate next = date.plusDays(1);
         int currentHour = LocalTime.now().getHour();
 
+        List<Event> dayEvents = eventService.findByDate(date);
+
         model.addAttribute("title", CalendarUtils.dayLabel(date));
         model.addAttribute("date", date);
         model.addAttribute("hours", hours);
@@ -110,6 +129,7 @@ public class CalendarController {
         model.addAttribute("year", year);
         model.addAttribute("month", month);
         model.addAttribute("weekNum", CalendarUtils.isoWeekNumber(date));
+        model.addAttribute("events", dayEvents);
 
         return "day";
     }

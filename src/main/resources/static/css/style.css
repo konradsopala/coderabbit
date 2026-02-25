@@ -134,10 +134,11 @@ body {
 .month-cell {
     aspect-ratio: 1;
     display: flex;
-    align-items: flex-start;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     padding-top: 8px;
     border: 1px solid var(--border);
+    overflow: hidden;
 }
 
 .month-cell.other-month {
@@ -297,4 +298,62 @@ body {
 
 .day-row .time-slot {
     border-left: 1px solid var(--border);
+    position: relative;
+}
+
+/* Event Chips (Month View) */
+.month-cell-events {
+    width: 100%;
+    padding: 2px 4px;
+    overflow: hidden;
+    flex: 1;
+}
+
+.event-chip {
+    border-radius: 3px;
+    padding: 1px 4px;
+    margin-bottom: 2px;
+    cursor: default;
+    overflow: hidden;
+}
+
+.event-chip-text {
+    font-size: 10px;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 1.4;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Event Blocks (Week & Day Views) */
+.event-block {
+    border-radius: 4px;
+    padding: 4px 6px;
+    margin: 2px;
+    cursor: default;
+    overflow: hidden;
+    min-height: 22px;
+}
+
+.event-block-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    line-height: 1.3;
+    text-shadow: 0 0 2px rgba(0, 0, 0, 0.5), 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.event-block-time {
+    font-size: 10px;
+    color: rgba(255, 255, 255, 0.85);
+    white-space: nowrap;
+    display: block;
+    line-height: 1.3;
 }
